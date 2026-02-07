@@ -6,6 +6,7 @@ import StepperRail from "../../components/StepperRail";
 import ChatPanel from "../../components/ChatPanel";
 import MemoRenderer from "../../components/MemoRenderer";
 import ErrorToast from "../../components/ErrorToast";
+import LanguageToggle from "../../components/LanguageToggle";
 import { useCityStore } from "../../store/useCityStore";
 
 const agentAliases = {
@@ -109,7 +110,8 @@ export default function StudioPage() {
                 <div className="text-xs uppercase tracking-wider text-slate-500">Policy Studio</div>
                 <h1 className="text-3xl font-semibold text-slate-100">Memo Control Room</h1>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <LanguageToggle />
                 <button
                   type="button"
                   onClick={handlePrint}

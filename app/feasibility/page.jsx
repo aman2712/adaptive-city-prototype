@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import StepperRail from "../../components/StepperRail";
 import Badge from "../../components/Badge";
 import ErrorToast from "../../components/ErrorToast";
+import LanguageToggle from "../../components/LanguageToggle";
 import { useCityStore } from "../../store/useCityStore";
 import { applyFeasibilityToMemo } from "../../lib/agents/memoBuilder";
 
@@ -173,12 +174,15 @@ export default function FeasibilityPage() {
         <StepperRail activeIds={["finance", "regulatory", "ops"]} />
         <div className="flex-1 px-6 py-12 md:px-10">
           <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
-            <header className="flex items-center justify-between">
+            <header className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-xs uppercase tracking-wider text-slate-500">Feasibility Trio</div>
                 <h1 className="text-3xl font-semibold text-slate-100">Finance, Regulatory, Ops</h1>
               </div>
-              <Badge label="Parallel Run" variant="accent" />
+              <div className="flex flex-wrap items-center gap-2">
+                <LanguageToggle />
+                <Badge label="Parallel Run" variant="accent" />
+              </div>
             </header>
 
             <div className="grid gap-4 lg:grid-cols-3">
