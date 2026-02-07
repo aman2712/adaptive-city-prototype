@@ -8,12 +8,11 @@ const LanguageContext = createContext({
 });
 
 export function LanguageProvider({ children }) {
-  const [lang, setLangState] = useState("en");
-
-  useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("app-lang") : null;
-    if (stored === "ar" || stored === "en") setLangState(stored);
-  }, []);
+  const [lang, setLangState] = useState(() => {
+    if (typeof window === "undefined") return "en";
+    const stored = localStorage.getItem("app-lang");
+    return stored === "ar" ? "ar" : "en";
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;

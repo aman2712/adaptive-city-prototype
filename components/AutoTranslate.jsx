@@ -49,14 +49,8 @@ export default function AutoTranslate({ children }) {
   const rootRef = useRef(null);
   const originalsRef = useRef(new WeakMap());
   const cache = useMemo(() => loadCache(), []);
-  const [ready, setReady] = useState(false);
-
   useEffect(() => {
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready || !rootRef.current) return;
+    if (!rootRef.current) return;
 
     const restoreOriginals = () => {
       const walker = document.createTreeWalker(rootRef.current, NodeFilter.SHOW_TEXT);
@@ -136,7 +130,7 @@ export default function AutoTranslate({ children }) {
     } else {
       restoreOriginals();
     }
-  }, [lang, ready, cache]);
+  }, [lang, cache]);
 
   return <div ref={rootRef}>{children}</div>;
 }

@@ -23,7 +23,7 @@ export default function CollectPage() {
   const [isClustering, setIsClustering] = useState(false);
   const [error, setError] = useState("");
   const [autoStatus, setAutoStatus] = useState("idle");
-  const [targetCount, setTargetCount] = useState(50);
+  const [targetCount, setTargetCount] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [intakeCounts, setIntakeCounts] = useState({
     reddit: 0,
@@ -124,7 +124,7 @@ export default function CollectPage() {
     setIntakeCounts({ reddit: 0, facebook: 0, blog: 0 });
     setOtherCounts({ hotline: 0, sensors: 0, municipal: 0 });
     setAutoStatus("collecting");
-    setTargetCount(50);
+    setTargetCount(10);
     collectedRef.current = [];
     setStreaming(true);
   };

@@ -42,11 +42,7 @@ export default function Home() {
               <div className="text-[10px] uppercase tracking-[0.3em] text-slate-500">Action Intelligence</div>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-1 text-xs text-slate-300">
-            <span className="text-slate-100">EN</span>
-            <span className="text-slate-600">|</span>
-            <span className="text-slate-500">AR (Preview)</span>
-          </div>
+          <LanguageToggle />
         </header>
 
         <section className="flex flex-1 flex-col items-center justify-center gap-10 text-center">

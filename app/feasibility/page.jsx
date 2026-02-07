@@ -30,8 +30,13 @@ export default function FeasibilityPage() {
     synthesis: false,
   });
   const [error, setError] = useState("");
+  const [expandedCards, setExpandedCards] = useState({
+    finance: false,
+    regulatory: false,
+    operations: false,
+  });
 
-  const formatValue = (value) => {
+  const formatValue = useCallback((value) => {
     if (Array.isArray(value)) return value.join(" | ");
     if (value && typeof value === "object") {
       return Object.values(value)
@@ -41,7 +46,27 @@ export default function FeasibilityPage() {
         .join(" | ");
     }
     return value ?? "";
+  }, []);
+
+  const safeText = useCallback((value) => {
+    if (value == null) return "";
+    if (Array.isArray(value) || typeof value === "object") return formatValue(value);
+    return String(value);
+  }, [formatValue]);
+
+  const toClauses = useCallback((value) => {
+    const text = safeText(value);
+    if (!text) return "";
+    const parts = text.split(/\s*[;|,]\s*/).filter(Boolean);
+    return parts.length > 1 ? parts.join(" · ") : text;
+  }, [safeText]);
+
+  const firstOrFallback = (items, fallback = "Pending") => {
+    if (!Array.isArray(items) || items.length === 0) return fallback;
+    return safeText(items[0]) || fallback;
   };
+
+  const restItems = (items) => (Array.isArray(items) ? items.slice(1).map(safeText) : []);
 
   const cluster = useMemo(
     () => clusters.find((item) => item.id === selectedClusterId),
@@ -165,6 +190,12 @@ export default function FeasibilityPage() {
   };
 
   const showConnectors = loading.finance || loading.regulatory || loading.operations;
+  const verdict = useMemo(() => {
+    const rec = safeText(feasibilityPack?.synthesized?.recommended).toLowerCase();
+    if (rec.includes("feasible") || rec.includes("proceed") || rec.includes("approve")) return "Feasible";
+    if (rec.includes("risk") || rec.includes("caution")) return "Moderate Risk";
+    return "High Confidence";
+  }, [feasibilityPack?.synthesized?.recommended, safeText]);
 
   return (
     <main className="min-h-screen bg-shell text-white">
@@ -192,36 +223,205 @@ export default function FeasibilityPage() {
               ].map((card, index) => {
                 const data = feasibilityPack?.[card.id];
                 const isLoading = loading[card.id];
+                const isExpanded = expandedCards[card.id];
                 return (
-                  <div key={card.id} className={`card flex flex-col gap-3 p-4 ${showConnectors && index < 2 ? "connector" : ""}`}>
+                  <div
+                    key={card.id}
+                    className={`card group flex flex-col gap-3 p-4 ${showConnectors && index < 2 ? "connector" : ""}`}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-semibold text-slate-100">{card.title}</div>
                       {isLoading ? <Badge label="Working" variant={card.variant} /> : <Badge label="Ready" variant="success" />}
                     </div>
+                    {showConnectors && (
+                      <div className={`comms-text comms-delay-${index}`}>Signal routing</div>
+                    )}
                     {!data && (
                       <div className="rounded-lg border border-dashed border-slate-800 p-3 text-xs text-slate-500">
                         {isLoading ? "Analyzing..." : "Awaiting run."}
                       </div>
                     )}
                     {data && (
-                      <div className="space-y-2 text-xs text-slate-200">
-                        {Object.entries(data).map(([key, value]) => (
-                          <div key={key} className="card-soft p-2">
-                            <div className="text-[10px] uppercase tracking-wider text-slate-500">{key}</div>
-                            <div className="mt-1 text-xs text-slate-200">
-                              {formatValue(value)}
+                      <div className="space-y-3 text-xs text-slate-200">
+                        {card.id === "finance" && (
+                          <>
+                            <div className="card-soft p-3">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500">Cost Range</div>
+                              <div className="mt-1 text-sm text-slate-100">{safeText(data.costRange)}</div>
                             </div>
-                          </div>
-                        ))}
+                            <div className="card-soft p-3">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500">Funding Strategy</div>
+                              <div className="mt-1 text-xs text-slate-200">
+                                {firstOrFallback(data.fundingNotes, "Funding plan pending.")}
+                              </div>
+                            </div>
+                            {isExpanded && (
+                              <div className="space-y-2">
+                                <div className="card-soft p-3">
+                                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Tradeoffs</div>
+                                  <div className="mt-2 space-y-2 text-xs text-slate-200">
+                                    {data.tradeoffs?.length ? (
+                                      data.tradeoffs.map((item) => (
+                                        <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1">
+                                          {safeText(item)}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-slate-500">No tradeoffs listed.</div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="card-soft p-3">
+                                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Additional Notes</div>
+                                  <div className="mt-2 space-y-2 text-xs text-slate-200">
+                                    {restItems(data.fundingNotes).length ? (
+                                      restItems(data.fundingNotes).map((item) => (
+                                        <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1">
+                                          {item}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-slate-500">No additional notes.</div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {card.id === "regulatory" && (
+                          <>
+                            <div className="card-soft p-3">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500">Primary Constraint</div>
+                              <div className="mt-1 text-xs text-slate-200">
+                                {firstOrFallback(data.constraints, "No major constraints flagged.")}
+                              </div>
+                            </div>
+                            <div className="card-soft p-3">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500">Primary Approval</div>
+                              <div className="mt-1 text-xs text-slate-200">
+                                {firstOrFallback(data.approvals, "Approval path pending.")}
+                              </div>
+                            </div>
+                            {isExpanded && (
+                              <div className="space-y-2">
+                                <div className="card-soft p-3">
+                                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Constraints</div>
+                                  <div className="mt-2 space-y-2">
+                                    {restItems(data.constraints).length ? (
+                                      restItems(data.constraints).map((item) => (
+                                        <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1">
+                                          {item}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-slate-500">No additional constraints.</div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="card-soft p-3">
+                                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Approvals</div>
+                                  <div className="mt-2 space-y-2">
+                                    {restItems(data.approvals).length ? (
+                                      restItems(data.approvals).map((item) => (
+                                        <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1">
+                                          {item}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-slate-500">No additional approvals.</div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="card-soft p-3">
+                                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Regulatory Risks</div>
+                                  <div className="mt-2 space-y-2">
+                                    {data.risks?.length ? (
+                                      data.risks.map((item) => (
+                                        <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1">
+                                          {safeText(item)}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-slate-500">No regulatory risks listed.</div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {card.id === "operations" && (
+                          <>
+                            <div className="card-soft p-3">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500">Timeline</div>
+                              <div className="mt-1 text-sm text-slate-100">{safeText(data.timeline)}</div>
+                            </div>
+                            <div className="card-soft p-3">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500">Key Dependency</div>
+                              <div className="mt-1 text-xs text-slate-200">
+                                {firstOrFallback(data.dependencies, "Dependencies under review.")}
+                              </div>
+                            </div>
+                            {isExpanded && (
+                              <div className="space-y-2">
+                                <div className="card-soft p-3">
+                                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Staffing</div>
+                                  <div className="mt-2 space-y-2">
+                                    {data.staffing?.length ? (
+                                      data.staffing.map((item) => (
+                                        <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1">
+                                          {safeText(item)}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-slate-500">No staffing notes listed.</div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="card-soft p-3">
+                                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Dependencies</div>
+                                  <div className="mt-2 space-y-2">
+                                    {restItems(data.dependencies).length ? (
+                                      restItems(data.dependencies).map((item) => (
+                                        <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2 py-1">
+                                          {item}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-slate-500">No additional dependencies.</div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     )}
                     <button
                       type="button"
                       onClick={() => runAgent(card.id)}
-                      className="btn btn-secondary btn-xs mt-auto"
+                      className="btn btn-secondary btn-xs mt-auto translate-y-1 opacity-0 pointer-events-none transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto"
                     >
                       Re-run {card.title}
                     </button>
+                    {data && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedCards((prev) => ({
+                            ...prev,
+                            [card.id]: !prev[card.id],
+                          }))
+                        }
+                        className="text-[11px] font-medium text-slate-400 hover:text-slate-200"
+                      >
+                        {isExpanded ? "Hide details" : "View details"}
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -233,7 +433,10 @@ export default function FeasibilityPage() {
                   <div className="text-xs uppercase tracking-wider text-slate-500">Synthesis</div>
                   <h2 className="text-lg font-semibold text-slate-100">Feasibility Summary</h2>
                 </div>
-                {loading.synthesis && <Badge label="Synthesizing" variant="accent" />}
+                <div className="flex items-center gap-2">
+                  <Badge label={verdict} variant="info" />
+                  {loading.synthesis && <Badge label="Synthesizing" variant="accent" />}
+                </div>
               </div>
               {!feasibilityPack?.synthesized && (
                 <div className="rounded-xl border border-dashed border-slate-800 p-6 text-sm text-slate-500">
@@ -241,23 +444,47 @@ export default function FeasibilityPage() {
                 </div>
               )}
               {feasibilityPack?.synthesized && (
-                <div className="space-y-3 text-xs text-slate-200">
-                  <div className="card-soft p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-500">Recommended</div>
-                    <p>{feasibilityPack.synthesized.recommended}</p>
+                <div className="space-y-6 text-xs text-slate-200">
+                  <div className="card-soft border border-blue-500/30 bg-blue-500/5 p-4 shadow-[0_0_18px_rgba(59,130,246,0.15)]">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[10px] uppercase tracking-wider text-blue-200">System Recommendation</div>
+                      <Badge label="High Confidence" variant="accent" />
+                    </div>
+                    <p className="mt-2 text-sm text-slate-100">{toClauses(feasibilityPack.synthesized.recommended)}</p>
                   </div>
-                  <div className="card-soft p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-500">Key Risks</div>
-                    <p>{feasibilityPack.synthesized.keyRisks.join(" | ")}</p>
-                  </div>
-                  <div className="card-soft p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-500">Mitigation</div>
-                    <p>{feasibilityPack.synthesized.mitigation.join(" | ")}</p>
+
+                  <div className="space-y-3">
+                    {(() => {
+                      const risks = Array.isArray(feasibilityPack.synthesized.keyRisks)
+                        ? feasibilityPack.synthesized.keyRisks
+                        : [feasibilityPack.synthesized.keyRisks].filter(Boolean);
+                      const mitigations = Array.isArray(feasibilityPack.synthesized.mitigation)
+                        ? feasibilityPack.synthesized.mitigation
+                        : [feasibilityPack.synthesized.mitigation].filter(Boolean);
+                      const max = Math.max(risks.length, mitigations.length, 1);
+                      return Array.from({ length: max }).map((_, idx) => (
+                        <div key={`pair-${idx}`} className="card-soft p-3">
+                          <div className="flex flex-col gap-2 text-xs text-slate-200">
+                            <div className="flex items-start gap-2">
+                              <span className="text-[10px] uppercase tracking-wider text-slate-500">Risk</span>
+                              <span className="text-slate-100">{toClauses(risks[idx] || "Pending risk review.")}</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="text-[10px] uppercase tracking-wider text-slate-500">Mitigation</span>
+                              <span className="text-slate-200">{toClauses(mitigations[idx] || "Mitigation in design.")}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 </div>
               )}
 
               <div className="mt-auto flex flex-wrap gap-2">
+                <div className="w-full text-[11px] uppercase tracking-wider text-slate-500">
+                  Human review required before execution
+                </div>
                 <button
                   type="button"
                   onClick={handleApprove}

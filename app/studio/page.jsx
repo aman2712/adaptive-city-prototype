@@ -110,7 +110,9 @@ export default function StudioPage() {
                 <h1 className="text-3xl font-semibold text-slate-100">Memo Control Room</h1>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <LanguageToggle />
+                <div className="opacity-70">
+                  <LanguageToggle />
+                </div>
                 <button
                   type="button"
                   onClick={handlePrint}
@@ -131,28 +133,29 @@ export default function StudioPage() {
                     resetAll();
                     router.push("/");
                   }}
-                  className="btn btn-danger btn-sm"
+                  className="btn btn-ghost btn-sm"
                 >
                   New Run (Reset)
                 </button>
               </div>
             </header>
 
-            <div className="grid gap-6 lg:grid-cols-[0.45fr_0.55fr]">
-              <div className="no-print">
-                <ChatPanel
-                  messages={chatLog}
-                  agent={agent}
-                  onAgentChange={setAgent}
-                  onSend={handleSend}
-                  loading={loading}
-                />
-              </div>
-              <div>
+            <div className="relative">
+              <div className="mx-auto max-w-4xl">
                 <MemoRenderer memo={policyMemo} highlightedSections={highlightedSections} />
               </div>
             </div>
         </div>
+      </div>
+      <div className="no-print fixed bottom-6 right-6 z-40">
+        <ChatPanel
+          messages={chatLog}
+          agent={agent}
+          onAgentChange={setAgent}
+          onSend={handleSend}
+          loading={loading}
+          className="h-[420px] w-[320px] md:h-[520px] md:w-[380px]"
+        />
       </div>
       <ErrorToast message={error} onRetry={() => handleSend("@leader retry latest") } onDismiss={() => setError("")} />
     </main>

@@ -8,8 +8,9 @@ const agents = [
   { id: "ops", label: "Ops" },
 ];
 
-export default function ChatPanel({ messages = [], agent, onAgentChange, onSend, loading }) {
+export default function ChatPanel({ messages = [], agent, onAgentChange, onSend, loading, className = "" }) {
   const [input, setInput] = useState("");
+  const containerClass = className || "h-full";
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -19,26 +20,36 @@ export default function ChatPanel({ messages = [], agent, onAgentChange, onSend,
   };
 
   return (
-    <div className="card flex h-full flex-col gap-4 p-4">
+    <div className={`card flex flex-col gap-4 p-4 ${containerClass}`}>
       <div className="flex items-center justify-between">
-        <div className="text-xs uppercase tracking-[0.3em] text-slate-500">Policy Studio</div>
-        <select
-          value={agent}
-          onChange={(event) => onAgentChange(event.target.value)}
-          className="input-base h-9 w-auto px-3 py-1 text-xs"
-        >
+        <div className="text-xs uppercase tracking-[0.3em] text-slate-300">Policy Studio</div>
+        <div className="flex items-center rounded-full border border-slate-800 bg-slate-900/60 p-1">
           {agents.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.label}
-            </option>
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => onAgentChange(option.id)}
+              className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider transition ${
+                agent === option.id
+                  ? "bg-blue-500/30 text-blue-100"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              {option.label.slice(0, 1)}
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto pr-2 text-sm">
         {messages.length === 0 && (
-          <div className="rounded-xl border border-dashed border-slate-800 p-4 text-xs text-slate-500">
-            Start with @leader, @solutions, @finance, @regulatory, or @ops.
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-300">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500">Try</div>
+            <div className="mt-2 space-y-1 text-slate-200">
+              <div>@leader tighten executive summary</div>
+              <div>@finance revise cost assumptions</div>
+              <div>@ops adjust timeline</div>
+            </div>
           </div>
         )}
         {messages.map((message, index) => (
