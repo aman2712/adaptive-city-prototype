@@ -443,40 +443,92 @@ export default function FeasibilityPage() {
                   {loading.synthesis ? "Synthesizing..." : "Awaiting synthesis."}
                 </div>
               )}
-              {feasibilityPack?.synthesized && (
-                <div className="space-y-6 text-xs text-slate-200">
-                  <div className="card-soft border border-blue-500/30 bg-blue-500/5 p-4 shadow-[0_0_18px_rgba(59,130,246,0.15)]">
-                    <div className="flex items-center justify-between">
-                      <div className="text-[10px] uppercase tracking-wider text-blue-200">System Recommendation</div>
-                      <Badge label="High Confidence" variant="accent" />
+              {feasibilityPack?.synthesized ? (
+                <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                  <div className="space-y-4 text-xs text-slate-200">
+                    <div className="card-soft border border-blue-500/30 bg-blue-500/5 p-4 shadow-[0_0_18px_rgba(59,130,246,0.15)]">
+                      <div className="flex items-center justify-between">
+                        <div className="text-[10px] uppercase tracking-wider text-blue-200">System Recommendation</div>
+                        <Badge label="High Confidence" variant="accent" />
+                      </div>
+                      <p className="mt-2 text-sm text-slate-100">{toClauses(feasibilityPack.synthesized.recommended)}</p>
                     </div>
-                    <p className="mt-2 text-sm text-slate-100">{toClauses(feasibilityPack.synthesized.recommended)}</p>
-                  </div>
 
-                  <div className="space-y-3">
-                    {(() => {
-                      const risks = Array.isArray(feasibilityPack.synthesized.keyRisks)
-                        ? feasibilityPack.synthesized.keyRisks
-                        : [feasibilityPack.synthesized.keyRisks].filter(Boolean);
-                      const mitigations = Array.isArray(feasibilityPack.synthesized.mitigation)
-                        ? feasibilityPack.synthesized.mitigation
-                        : [feasibilityPack.synthesized.mitigation].filter(Boolean);
-                      const max = Math.max(risks.length, mitigations.length, 1);
-                      return Array.from({ length: max }).map((_, idx) => (
-                        <div key={`pair-${idx}`} className="card-soft p-3">
-                          <div className="flex flex-col gap-2 text-xs text-slate-200">
-                            <div className="flex items-start gap-2">
-                              <span className="text-[10px] uppercase tracking-wider text-slate-500">Risk</span>
-                              <span className="text-slate-100">{toClauses(risks[idx] || "Pending risk review.")}</span>
-                            </div>
-                            <div className="flex items-start gap-2">
-                              <span className="text-[10px] uppercase tracking-wider text-slate-500">Mitigation</span>
-                              <span className="text-slate-200">{toClauses(mitigations[idx] || "Mitigation in design.")}</span>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {(() => {
+                        const risks = Array.isArray(feasibilityPack.synthesized.keyRisks)
+                          ? feasibilityPack.synthesized.keyRisks
+                          : [feasibilityPack.synthesized.keyRisks].filter(Boolean);
+                        const mitigations = Array.isArray(feasibilityPack.synthesized.mitigation)
+                          ? feasibilityPack.synthesized.mitigation
+                          : [feasibilityPack.synthesized.mitigation].filter(Boolean);
+                        const max = Math.max(risks.length, mitigations.length, 1);
+                        return Array.from({ length: max }).map((_, idx) => (
+                          <div key={`pair-${idx}`} className="card-soft p-3">
+                            <div className="flex flex-col gap-2 text-xs text-slate-200">
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] uppercase tracking-wider text-slate-500">Risk</span>
+                                <span className="text-slate-100">{toClauses(risks[idx] || "Pending risk review.")}</span>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] uppercase tracking-wider text-slate-500">Mitigation</span>
+                                <span className="text-slate-200">{toClauses(mitigations[idx] || "Mitigation in design.")}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ));
-                    })()}
+                        ));
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className="card-soft p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs uppercase tracking-wider text-slate-500">Resource Elasticity</div>
+                      <Badge label="High" variant="success" />
+                    </div>
+                    <div className="mt-3 space-y-2 text-xs text-slate-200">
+                      <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                        <span>Peak season</span>
+                        <span className="text-emerald-300">▲ Staffing +20%, Budget +15%</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                        <span>Off-peak</span>
+                        <span className="text-amber-200">▼ Staffing −10%, Budget −8%</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                        <span>Trigger</span>
+                        <span className="text-slate-300">Demand index &gt; 1.2</span>
+                      </div>
+                      <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                        <span>Review cadence</span>
+                        <span className="text-slate-300">Weekly</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="card-soft p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs uppercase tracking-wider text-slate-500">Resource Elasticity</div>
+                    <Badge label="High" variant="success" />
+                  </div>
+                  <div className="mt-3 space-y-2 text-xs text-slate-200">
+                    <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                      <span>Peak season</span>
+                      <span className="text-emerald-300">▲ Staffing +20%, Budget +15%</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                      <span>Off-peak</span>
+                      <span className="text-amber-200">▼ Staffing −10%, Budget −8%</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                      <span>Trigger</span>
+                      <span className="text-slate-300">Demand index &gt; 1.2</span>
+                    </div>
+                    <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
+                      <span>Review cadence</span>
+                      <span className="text-slate-300">Weekly</span>
+                    </div>
                   </div>
                 </div>
               )}
