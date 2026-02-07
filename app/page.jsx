@@ -13,7 +13,15 @@ export default function Home() {
       <div className="noise-overlay" aria-hidden="true" />
       <div className="mx-auto flex min-h-screen max-w-[1400px] flex-col px-6 py-12 md:px-10">
         <header className="flex items-center justify-between">
-          <div className="text-xs font-medium uppercase tracking-wider text-slate-400">Adaptive City</div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-500/10 text-lg font-semibold text-blue-100">
+              R
+            </div>
+            <div className="leading-tight">
+              <div className="text-lg font-semibold text-slate-100">Rift</div>
+              <div className="text-[10px] uppercase tracking-[0.3em] text-slate-500">Action Intelligence</div>
+            </div>
+          </div>
           <div className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-1 text-xs text-slate-300">
             <span className="text-slate-100">EN</span>
             <span className="text-slate-600">|</span>

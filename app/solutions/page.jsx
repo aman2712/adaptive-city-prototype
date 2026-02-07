@@ -18,6 +18,49 @@ const rejectionReasons = [
   "Other",
 ];
 
+function ShimmerBlock({ className }) {
+  return <div className={`loading-shimmer rounded-lg ${className}`} />;
+}
+
+function ProblemBriefLoading() {
+  return (
+    <div className="space-y-4">
+      <ShimmerBlock className="h-4 w-32" />
+      <div className="space-y-3">
+        <ShimmerBlock className="h-16 w-full" />
+        <div className="grid gap-3 md:grid-cols-2">
+          <ShimmerBlock className="h-12 w-full" />
+          <ShimmerBlock className="h-12 w-full" />
+          <ShimmerBlock className="h-12 w-full" />
+          <ShimmerBlock className="h-12 w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PlanLoading() {
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap gap-2">
+        <ShimmerBlock className="h-8 w-24" />
+        <ShimmerBlock className="h-8 w-28" />
+        <ShimmerBlock className="h-8 w-20" />
+      </div>
+      <div className="grid gap-3 lg:grid-cols-3">
+        <ShimmerBlock className="h-28 w-full" />
+        <ShimmerBlock className="h-28 w-full" />
+        <ShimmerBlock className="h-28 w-full" />
+      </div>
+      <div className="grid gap-3 lg:grid-cols-3">
+        <ShimmerBlock className="h-20 w-full" />
+        <ShimmerBlock className="h-20 w-full" />
+        <ShimmerBlock className="h-20 w-full" />
+      </div>
+    </div>
+  );
+}
+
 export default function SolutionsPage() {
   const router = useRouter();
   const hasHydrated = useCityStore((state) => state.hasHydrated);
@@ -186,8 +229,12 @@ export default function SolutionsPage() {
                   </div>
                 </div>
                 {!normalizedProblemBrief && (
-                  <div className="rounded-xl border border-dashed border-slate-800 p-6 text-sm text-slate-500">
-                    {loading ? "Synthesizing brief..." : "Awaiting brief."}
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+                    {loading ? (
+                      <ProblemBriefLoading />
+                    ) : (
+                      <div className="text-sm text-slate-500">Awaiting brief.</div>
+                    )}
                   </div>
                 )}
                 {normalizedProblemBrief && (
@@ -231,8 +278,12 @@ export default function SolutionsPage() {
                 </div>
 
                 {!normalizedSolutionPlan && (
-                  <div className="rounded-xl border border-dashed border-slate-800 p-6 text-sm text-slate-500">
-                    {loading ? "Designing plan..." : "Awaiting plan."}
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+                    {loading ? (
+                      <PlanLoading />
+                    ) : (
+                      <div className="text-sm text-slate-500">Awaiting plan.</div>
+                    )}
                   </div>
                 )}
                 {normalizedSolutionPlan && (

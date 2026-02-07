@@ -303,6 +303,17 @@ h1, h2, h3, .font-display {
 .animate-data-flow { animation: data-flow 2s linear infinite; }
 .animate-shimmer { animation: shimmer 2s infinite; }
 
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.2) 0%,
+    rgba(59, 130, 246, 0.18) 50%,
+    rgba(15, 23, 42, 0.2) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -364,6 +375,19 @@ h1, h2, h3, .font-display {
 
 .btn:active {
   transform: scale(0.97);
+}
+
+.btn,
+button,
+[role="button"],
+a.btn {
+  cursor: pointer;
+}
+
+.btn:disabled,
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
 }
 
 .btn-sm {

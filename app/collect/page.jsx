@@ -29,6 +29,11 @@ export default function CollectPage() {
     facebook: 0,
     blog: 0,
   });
+  const [otherCounts, setOtherCounts] = useState({
+    hotline: 0,
+    sensors: 0,
+    municipal: 0,
+  });
   const [expandedClusterId, setExpandedClusterId] = useState(null);
   const collectedRef = useRef([]);
 
@@ -86,6 +91,11 @@ export default function CollectPage() {
       collectedRef.current.push(newItem);
       addFeedback(newItem);
       setIntakeCounts((prev) => ({ ...prev, [channel]: prev[channel] + 1 }));
+      if (Math.random() < 0.6) {
+        const otherKeys = ["hotline", "sensors", "municipal"];
+        const key = otherKeys[Math.floor(Math.random() * otherKeys.length)];
+        setOtherCounts((prev) => ({ ...prev, [key]: prev[key] + 1 }));
+      }
       setTotalCount((prev) => {
         const next = prev + 1;
         if (next >= targetCount) {
@@ -111,6 +121,7 @@ export default function CollectPage() {
     setExpandedClusterId(null);
     setTotalCount(0);
     setIntakeCounts({ reddit: 0, facebook: 0, blog: 0 });
+    setOtherCounts({ hotline: 0, sensors: 0, municipal: 0 });
     setAutoStatus("collecting");
     setTargetCount(50);
     collectedRef.current = [];
@@ -165,10 +176,9 @@ export default function CollectPage() {
               <section className="card flex flex-col gap-5 p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-xs uppercase tracking-wider text-slate-500">Simulated Intake</div>
+                    <div className="text-xs uppercase tracking-wider text-slate-500">Signal Intake</div>
                     <h2 className="text-lg font-semibold text-slate-100">Live Signal Summary</h2>
                   </div>
-                  <div className="badge badge-accent">Synthetic</div>
                 </div>
                 <div className="flex flex-wrap items-end justify-between gap-4">
                   <div>
@@ -182,7 +192,7 @@ export default function CollectPage() {
                 <div className="h-2 w-full overflow-hidden rounded-full bg-slate-900/60">
                   <div className="h-full bg-blue-500/40" style={{ width: `${progress * 100}%` }} />
                 </div>
-                <div className="grid gap-3 md:grid-cols-3">
+                <div className="grid gap-3 md:grid-cols-4">
                   {[
                     { key: "reddit", label: "Reddit posts", count: intakeCounts.reddit },
                     { key: "facebook", label: "Facebook chatter", count: intakeCounts.facebook },
@@ -191,9 +201,25 @@ export default function CollectPage() {
                     <div key={item.key} className="card-soft p-4">
                       <div className="text-xs uppercase tracking-wider text-slate-500">{item.label}</div>
                       <div className="mt-2 text-xl font-semibold text-slate-100">{item.count}</div>
-                      <div className="mt-1 text-[11px] text-slate-500">Simulated scrape</div>
                     </div>
                   ))}
+                  <div className="card-soft p-4">
+                    <div className="text-xs uppercase tracking-wider text-slate-500">Other Sources</div>
+                    <div className="mt-3 space-y-2 text-xs text-slate-300">
+                      <div className="flex items-center justify-between">
+                        <span>Service hotline</span>
+                        <span className="font-mono text-slate-100">{otherCounts.hotline}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>IoT sensors</span>
+                        <span className="font-mono text-slate-100">{otherCounts.sensors}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Municipal logs</span>
+                        <span className="font-mono text-slate-100">{otherCounts.municipal}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </section>
 
@@ -236,8 +262,19 @@ export default function CollectPage() {
               </div>
 
               {displayClusters.length === 0 && (
-                <div className="rounded-xl border border-dashed border-slate-800 p-6 text-sm text-slate-500">
-                  {isClustering ? "Synthesizing problem clusters..." : "Awaiting clustered problems."}
+                <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
+                  {isClustering ? (
+                    <div className="space-y-3">
+                      <div className="loading-shimmer h-4 w-40 rounded-lg" />
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div className="loading-shimmer h-28 w-full rounded-lg" />
+                        <div className="loading-shimmer h-28 w-full rounded-lg" />
+                        <div className="loading-shimmer h-28 w-full rounded-lg" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-slate-500">Awaiting clustered problems.</div>
+                  )}
                 </div>
               )}
 
