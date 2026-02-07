@@ -169,10 +169,9 @@ export default function FeasibilityPage() {
     <main className="min-h-screen bg-shell text-white">
       <div className="grid-overlay" aria-hidden="true" />
       <div className="noise-overlay" aria-hidden="true" />
-      <div className="flex min-h-screen">
-        <StepperRail activeIds={["finance", "regulatory", "ops"]} />
-        <div className="flex-1 px-6 py-12 md:px-10">
-          <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
+      <StepperRail activeIds={["finance", "regulatory", "ops"]} />
+      <div className="min-h-screen px-6 pb-12 pt-28 md:px-10">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
             <header className="flex items-center justify-between">
               <div>
                 <div className="text-xs uppercase tracking-wider text-slate-500">Feasibility Trio</div>
@@ -272,7 +271,6 @@ export default function FeasibilityPage() {
                 </button>
               </div>
             </div>
-          </div>
         </div>
       </div>
       <ErrorToast message={error} onRetry={runSynthesis} onDismiss={() => setError("")} />

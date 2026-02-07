@@ -79,6 +79,14 @@ export default function SolutionsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [reason, setReason] = useState(rejectionReasons[0]);
   const [customReason, setCustomReason] = useState("");
+  const [expandedPhases, setExpandedPhases] = useState({
+    immediate: false,
+    days30: false,
+    days90: false,
+  });
+  const [expandedKpis, setExpandedKpis] = useState(false);
+  const [expandedRisks, setExpandedRisks] = useState(false);
+  const [expandedAssumptions, setExpandedAssumptions] = useState(false);
 
   const normalizedSolutionPlan = useMemo(() => {
     if (!solutionPlan) return null;
@@ -200,10 +208,9 @@ export default function SolutionsPage() {
     <main className="min-h-screen bg-shell text-white">
       <div className="grid-overlay" aria-hidden="true" />
       <div className="noise-overlay" aria-hidden="true" />
-      <div className="flex min-h-screen">
-        <StepperRail activeIds={["solutions"]} />
-        <div className="flex-1 px-6 py-12 md:px-10">
-          <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
+      <StepperRail activeIds={["solutions"]} />
+      <div className="min-h-screen px-6 pb-12 pt-28 md:px-10">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
             <header className="flex items-center justify-between">
               <div>
                 <div className="text-xs uppercase tracking-wider text-slate-500">Solutions Agent</div>
@@ -311,12 +318,28 @@ export default function SolutionsPage() {
                             {phase.items.length === 0 && (
                               <div className="text-slate-500">Pending actions.</div>
                             )}
-                            {phase.items.map((item) => (
+                            {(expandedPhases[phase.id] ? phase.items : phase.items.slice(0, 2)).map((item) => (
                               <div key={item} className="flex gap-2">
                                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-400/70" />
                                 <span>{item}</span>
                               </div>
                             ))}
+                            {phase.items.length > 2 && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setExpandedPhases((prev) => ({
+                                    ...prev,
+                                    [phase.id]: !prev[phase.id],
+                                  }))
+                                }
+                                className="mt-2 text-[11px] font-medium text-slate-400 hover:text-slate-200"
+                              >
+                                {expandedPhases[phase.id]
+                                  ? "Show less"
+                                  : `+${phase.items.length - 2} more`}
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -326,7 +349,7 @@ export default function SolutionsPage() {
                       <div className="card-soft p-3">
                         <div className="text-xs uppercase tracking-wider text-slate-500">KPIs</div>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {normalizedSolutionPlan.kpis.map((item) => (
+                          {(expandedKpis ? normalizedSolutionPlan.kpis : normalizedSolutionPlan.kpis.slice(0, 2)).map((item) => (
                             <span
                               key={item}
                               className="rounded-md border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-[11px] text-blue-100"
@@ -335,11 +358,22 @@ export default function SolutionsPage() {
                             </span>
                           ))}
                         </div>
+                        {normalizedSolutionPlan.kpis.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedKpis((prev) => !prev)}
+                            className="mt-3 text-[11px] font-medium text-slate-400 hover:text-slate-200"
+                          >
+                            {expandedKpis
+                              ? "Show less"
+                              : `+${normalizedSolutionPlan.kpis.length - 2} more`}
+                          </button>
+                        )}
                       </div>
                       <div className="card-soft p-3">
                         <div className="text-xs uppercase tracking-wider text-slate-500">Risks</div>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {normalizedSolutionPlan.risks.map((item) => (
+                          {(expandedRisks ? normalizedSolutionPlan.risks : normalizedSolutionPlan.risks.slice(0, 2)).map((item) => (
                             <span
                               key={item}
                               className="rounded-md border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-100"
@@ -348,6 +382,17 @@ export default function SolutionsPage() {
                             </span>
                           ))}
                         </div>
+                        {normalizedSolutionPlan.risks.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedRisks((prev) => !prev)}
+                            className="mt-3 text-[11px] font-medium text-slate-400 hover:text-slate-200"
+                          >
+                            {expandedRisks
+                              ? "Show less"
+                              : `+${normalizedSolutionPlan.risks.length - 2} more`}
+                          </button>
+                        )}
                       </div>
                       <div className="card-soft p-3">
                         <div className="text-xs uppercase tracking-wider text-slate-500">Assumptions</div>
@@ -355,12 +400,26 @@ export default function SolutionsPage() {
                           {normalizedSolutionPlan.assumptions.length === 0 && (
                             <div className="text-slate-500">No assumptions listed.</div>
                           )}
-                          {normalizedSolutionPlan.assumptions.map((item) => (
+                          {(expandedAssumptions
+                            ? normalizedSolutionPlan.assumptions
+                            : normalizedSolutionPlan.assumptions.slice(0, 2)
+                          ).map((item) => (
                             <div key={item} className="rounded-md border border-slate-800 bg-slate-900/50 px-2.5 py-1">
                               {item}
                             </div>
                           ))}
                         </div>
+                        {normalizedSolutionPlan.assumptions.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedAssumptions((prev) => !prev)}
+                            className="mt-3 text-[11px] font-medium text-slate-400 hover:text-slate-200"
+                          >
+                            {expandedAssumptions
+                              ? "Show less"
+                              : `+${normalizedSolutionPlan.assumptions.length - 2} more`}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -386,7 +445,6 @@ export default function SolutionsPage() {
                 </div>
               </section>
             </div>
-          </div>
         </div>
       </div>
       <Modal open={modalOpen} title="Revise Plan" onClose={() => setModalOpen(false)}>
