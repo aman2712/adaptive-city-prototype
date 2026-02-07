@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import StepperRail from "../../components/StepperRail";
 import ErrorToast from "../../components/ErrorToast";
+import LanguageToggle from "../../components/LanguageToggle";
 import { useCityStore } from "../../store/useCityStore";
 import { generateFeedbackItem } from "../../lib/sim/feedback";
 import { makeId } from "../../lib/utils";
@@ -149,7 +150,8 @@ export default function CollectPage() {
                 <div className="text-xs uppercase tracking-wider text-slate-500">Data Agent</div>
                 <h1 className="text-3xl font-semibold text-slate-100">Live Collection</h1>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <LanguageToggle />
                 <button
                   type="button"
                   onClick={() => {

@@ -7,6 +7,7 @@ import Accordion from "../../components/Accordion";
 import Badge from "../../components/Badge";
 import Modal from "../../components/Modal";
 import ErrorToast from "../../components/ErrorToast";
+import LanguageToggle from "../../components/LanguageToggle";
 import { useCityStore } from "../../store/useCityStore";
 import { buildInitialMemo } from "../../lib/agents/memoBuilder";
 import { normalizePlan, toStringArray } from "../../lib/utils";
@@ -216,9 +217,12 @@ export default function SolutionsPage() {
                 <div className="text-xs uppercase tracking-wider text-slate-500">Solutions Agent</div>
                 <h1 className="text-3xl font-semibold text-slate-100">Problem Brief + Plan</h1>
               </div>
-              {normalizedSolutionPlan?.version && (
-                <Badge label={`v${normalizedSolutionPlan.version}`} variant="accent" />
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <LanguageToggle />
+                {normalizedSolutionPlan?.version && (
+                  <Badge label={`v${normalizedSolutionPlan.version}`} variant="accent" />
+                )}
+              </div>
             </header>
 
             <div className="grid items-start gap-6 lg:grid-cols-[0.8fr_1.2fr]">

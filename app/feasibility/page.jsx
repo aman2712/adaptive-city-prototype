@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import StepperRail from "../../components/StepperRail";
 import Badge from "../../components/Badge";
 import ErrorToast from "../../components/ErrorToast";
+import LanguageToggle from "../../components/LanguageToggle";
 import { useCityStore } from "../../store/useCityStore";
 import { applyFeasibilityToMemo } from "../../lib/agents/memoBuilder";
 
@@ -177,7 +178,10 @@ export default function FeasibilityPage() {
                 <div className="text-xs uppercase tracking-wider text-slate-500">Feasibility Trio</div>
                 <h1 className="text-3xl font-semibold text-slate-100">Finance, Regulatory, Ops</h1>
               </div>
-              <Badge label="Parallel Run" variant="accent" />
+              <div className="flex flex-wrap items-center gap-2">
+                <LanguageToggle />
+                <Badge label="Parallel Run" variant="accent" />
+              </div>
             </header>
 
             <div className="grid gap-4 lg:grid-cols-3">
